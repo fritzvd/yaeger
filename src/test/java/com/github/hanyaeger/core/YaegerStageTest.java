@@ -46,6 +46,7 @@ class YaegerStageTest {
 
         when(sceneCollectionFactory.create(stage, yaegerConfig)).thenReturn(sceneCollection);
         when(sceneFactory.createEmptyForSize(any(Size.class))).thenReturn(scene);
+
     }
 
     @Test
@@ -130,6 +131,16 @@ class YaegerStageTest {
     }
 
     @Test
+    void atInitializationSetOnCloseRequestIsCalled(){
+        // Arrange
+
+        // Act
+        sut.init(injector);
+
+        // Assert
+        verify(stage).setOnCloseRequest(any());
+    }
+    @Test
     void atInitializationWidthAndHeightAreSetAfterInitializeGame() {
         // Arrange
 
@@ -144,7 +155,7 @@ class YaegerStageTest {
     }
 
     @Test
-    void callingQuitDelegatesToStage() {
+    void setTitleDelegatesToStage() {
         // Arrange
         var expected = "Title";
 
@@ -156,7 +167,7 @@ class YaegerStageTest {
     }
 
     @Test
-    void setTitleDelegatesToStage() {
+    void quitDelegatesToStage() {
         // Arrange
 
         // Act
@@ -164,6 +175,20 @@ class YaegerStageTest {
 
         // Assert
         verify(stage).close();
+    }
+
+    @Test
+    void quitCallsDestroyOnActiveScene() {
+        // Arrange
+        var yaegerScene = mock(YaegerScene.class);
+        when(sceneCollection.getActiveScene()).thenReturn(yaegerScene);
+        sut.init(injector);
+
+        // Act
+        sut.quit();
+
+        // Assert
+        verify(yaegerScene).destroy();
     }
 
     @Test

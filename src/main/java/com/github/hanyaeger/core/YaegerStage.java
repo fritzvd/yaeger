@@ -2,8 +2,10 @@ package com.github.hanyaeger.core;
 
 import com.github.hanyaeger.api.Size;
 import com.github.hanyaeger.api.YaegerGame;
+import com.github.hanyaeger.core.factories.DebuggerFactory;
 import com.github.hanyaeger.core.factories.SceneCollectionFactory;
 import com.github.hanyaeger.core.factories.SceneFactory;
+import com.github.hanyaeger.core.factories.StageFactory;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import javafx.scene.Scene;
@@ -21,7 +23,9 @@ public class YaegerStage implements Initializable {
 
     private final YaegerGame yaegerGame;
     private final Stage stage;
+    private DebuggerStage debuggerStage;
     private final YaegerConfig yaegerConfig;
+    private DebuggerFactory debuggerFactory;
     private SceneFactory sceneFactory;
     private SceneCollectionFactory sceneCollectionFactory;
     private SceneCollection sceneCollection;
@@ -54,6 +58,7 @@ public class YaegerStage implements Initializable {
     @Override
     public void init(final Injector injector) {
         stage.setResizable(false);
+        stage.setOnCloseRequest(windowEvent -> quit());
         sceneCollection = sceneCollectionFactory.create(stage, yaegerConfig);
         injector.injectMembers(sceneCollection);
         sceneCollection.init(injector);
@@ -70,12 +75,25 @@ public class YaegerStage implements Initializable {
         sceneCollection.postSetupScenes();
 
         stage.show();
+
+        // TODO test
+        if (yaegerConfig.showDebug()) {
+            debuggerStage = debuggerFactory.create();
+            debuggerStage.show();
+        }
     }
 
     /**
      * Stop and close the Game.
      */
     public void quit() {
+        sceneCollection.getActiveScene().destroy();
+
+        // TODO test
+        if (yaegerConfig.showDebug()) {
+            debuggerStage.close();
+        }
+
         stage.close();
     }
 
@@ -126,5 +144,15 @@ public class YaegerStage implements Initializable {
     @Inject
     public void setSceneFactory(final SceneFactory sceneFactory) {
         this.sceneFactory = sceneFactory;
+    }
+
+    /**
+     * Set the {@link DebuggerFactory} to be used whenever a {@link com.google.inject.Stage} has to be created.
+     *
+     * @param debuggerFactory the {@link DebuggerFactory}
+     */
+    @Inject
+    public void setStageFactory(final DebuggerFactory debuggerFactory) {
+        this.debuggerFactory = debuggerFactory;
     }
 }

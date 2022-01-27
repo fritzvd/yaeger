@@ -7,7 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 
 /**
- * A {@link SceneFactory} can be used to create instances of {@link Scene}.
+ * A {@code SceneFactory} can be used to create instances of {@link Scene}.
  */
 public class SceneFactory {
 
